@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 export const dynamicParams = true // default val = true
 
 export async function generateStaticParams() {
-  const res = await fetch('http://localhost:4000/tickets')
+  const res = await fetch('http://localhost:40000/tickets')
 
   const tickets = await res.json()
  
@@ -13,17 +13,22 @@ export async function generateStaticParams() {
 }
 
 async function getTicket(id) {
-  const res = await fetch(`http://localhost:4000/tickets/${id}`, {
+  const res = await fetch('http://localhost:40000/tickets', {
     next: {
-      revalidate: 60
+      revalidate: 0 // use 0 to opt out of using cache
     }
   })
+
+
 
   if (!res.ok) {
     notFound()
   }
+  
+  const tickets = await res.json()
+  const ticket = tickets.find((ticket) => ticket.id === id)
 
-  return res.json()
+  return ticket
 }
 
 
@@ -32,7 +37,7 @@ export default async function TicketDetails({ params }) {
   const ticket = await getTicket(params.id)
 
   return (
-    <main>
+    <main> 
       <nav>
         <h2>Ticket Details</h2>
       </nav>
