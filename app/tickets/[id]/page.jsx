@@ -21,13 +21,10 @@ async function getTicket(id) {
 
 
 
-  if (!res.ok) {
-    notFound()
-  }
+  if (!res.ok) return undefined
   
   const tickets = await res.json()
   const ticket = tickets.find((ticket) => ticket.id === id)
-
   return ticket
 }
 
@@ -35,7 +32,9 @@ async function getTicket(id) {
 export default async function TicketDetails({ params }) {
   // const id = params.id
   const ticket = await getTicket(params.id)
-
+  if (!ticket) {
+    notFound()
+  }
   return (
     <main> 
       <nav>
