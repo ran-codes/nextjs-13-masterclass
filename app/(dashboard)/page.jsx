@@ -1,5 +1,9 @@
 import Link from 'next/link'
 
+export const metadata = {
+  title: 'Help Desk | Tickets' 
+}
+
 export default function Home() {
   return (
     <main>

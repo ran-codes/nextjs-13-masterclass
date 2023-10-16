@@ -2,44 +2,48 @@ import { notFound } from "next/navigation"
 
 export const dynamicParams = true // default val = true
 
+export async function generateMetadata({ params }) {
+  const id = params.id
+
+  const res = await fetch(`http://localhost:40000/tickets/${id}`)
+  const ticket = await res.json()
+
+  return {
+    title: `Dojo Helpdesk | ${ticket.title}`
+  }
+}
+
 export async function generateStaticParams() {
   const res = await fetch('http://localhost:40000/tickets')
 
   const tickets = await res.json()
- 
+
   return tickets.map((ticket) => ({
     id: ticket.id
   }))
 }
 
 async function getTicket(id) {
-  // imitate delay
-  // await new Promise(resolve => setTimeout(resolve, 3000))
-
-  const res = await fetch('http://localhost:40000/tickets', {
+  const res = await fetch(`http://localhost:40000/tickets/${id}`, {
     next: {
-      revalidate: 0 // use 0 to opt out of using cache
+      revalidate: 60
     }
   })
 
+  if (!res.ok) {
+    notFound()
+  }
 
-
-  if (!res.ok) return undefined
-  
-  const tickets = await res.json()
-  const ticket = tickets.find((ticket) => ticket.id === id)
-  return ticket
+  return res.json()
 }
 
 
 export default async function TicketDetails({ params }) {
   // const id = params.id
   const ticket = await getTicket(params.id)
-  if (!ticket) {
-    notFound()
-  }
+
   return (
-    <main> 
+    <main>
       <nav>
         <h2>Ticket Details</h2>
       </nav>
